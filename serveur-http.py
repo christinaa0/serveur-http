@@ -1,8 +1,14 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
-from models import Game, Wolf, Villager
+from models import Game
 
 game = Game(nb_max_turn=50, width=10, height=10)
+
+paths = {
+    '/players': 'add_player',
+    '/action': 'process_action',
+    '/state': 'get_state'
+}
 
 class SimpleGameServer(BaseHTTPRequestHandler):
 
@@ -19,37 +25,19 @@ class SimpleGameServer(BaseHTTPRequestHandler):
         data = json.loads(post_data)
 
         if self.path == "/players":
-            pseudo = data.get("pseudo")
-            role = data.get("role")
-            if not pseudo or not role:
-                self._send_response(400, {"error": "pseudo and role required"})
-                return
-
-            if role == "wolf":
-                player = Wolf(pseudo)
-            else:
-                player = Villager(pseudo)
-
-            game._Game__gameboard.subscribe_player(player)
-            self._send_response(200, {"message": f"{role} '{pseudo}' added"})
-
+            self._send_response(400, {"error": "players route removed"})
+            return
         elif self.path == "/action":
-            pseudo = data.get("pseudo")
-            action = tuple(data.get("action", (0, 0)))
-            for row in game._Game__gameboard._GameBoard__content:
-                for cell in row:
-                    if isinstance(cell, (Wolf, Villager)) and cell.pseudo == pseudo:
-                        game.register_action(cell, action)
-                        game.process_action()
-                        game._Game__gameboard.end_round()
-                        self._send_response(200, {"message": "action processed"})
-                        return
-            self._send_response(404, {"error": "player not found"})
+            self._send_response(400, {"error": "action route removed"})
+            return
 
     def do_GET(self):
         if self.path == "/state":
-            board = repr(game._Game__gameboard)
-            self._send_response(200, {"board": board})
+            self.get_state()
+
+    def get_state(self):
+        board = repr(game._Game__gameboard)
+        self._send_response(200, {"board": board})
 
 def run_server(port=8000):
     server_address = ('', port)
