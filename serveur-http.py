@@ -51,7 +51,6 @@ class SimpleGameServer(BaseHTTPRequestHandler):
             board = repr(game._Game__gameboard)
             self._send_response(200, {"board": board})
 
-
 def run_server(port=8000):
     server_address = ('', port)
     httpd = HTTPServer(server_address, SimpleGameServer)
