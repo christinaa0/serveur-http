@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+service GameEngineService {
+  rpc Move (PlayerAction) returns (MoveResponse);
+  rpc GetView (ViewRequest) returns (ViewResponse);
+}
+
+message PlayerAction {
+  string player_id = 1;
+  int32 dx = 2;
+  int32 dy = 3;
+}
+
+message ViewRequest {
+  string player_id = 1;
+}
+
+message Cell {
+  string pseudo = 1;
+  string role = 2; // Wolf or Villager
+  int32 x = 3;
+  int32 y = 4;
+}
+
+message MoveResponse {
+  bool success = 1;
+  string message = 2;
+  int32 new_x = 3;
+  int32 new_y = 4;
+  repeated Cell visible_cells = 5;
+}
+
+message ViewResponse {
+  repeated Cell visible_cells = 1;
+}
