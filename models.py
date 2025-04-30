@@ -141,6 +141,10 @@ class GameBoard:
             result += ' '.join(map(str, row)) + '\n'
         return result
 
+    def to_list(self):
+        return [[str(cell) for cell in row] for row in self.__content]
+
+
 
 if __name__ == '__main__':
     g = GameBoard(10, 5)

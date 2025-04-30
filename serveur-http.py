@@ -1,14 +1,9 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from urllib.parse import urlparse, parse_qs
 import json
 from models import Game
 
 game = Game(nb_max_turn=50, width=10, height=10)
-
-paths = {
-    '/players': 'add_player',
-    '/action': 'process_action',
-    '/state': 'get_state'
-}
 
 class SimpleGameServer(BaseHTTPRequestHandler):
 
@@ -32,19 +27,20 @@ class SimpleGameServer(BaseHTTPRequestHandler):
             return
 
     def do_GET(self):
-        if self.path == "/state":
-            self.get_state()
-
-    def get_state(self):
-        board = repr(game._Game__gameboard)
-        self._send_response(200, {"board": board})
+        parsed_url = urlparse(self.path)
+        if parsed_url.path == "/state":
+            query_params = parse_qs(parsed_url.query)
+            pseudo = query_params.get("pseudo", [None])[0]
+            board = game._Game__gameboard.to_list()
+            self._send_response(200, {"board": board, "pseudo": pseudo})
+        else:
+            self._send_response(404, {"error": "Not found"})
 
 def run_server(port=8000):
     server_address = ('', port)
     httpd = HTTPServer(server_address, SimpleGameServer)
     print(f"Serveur HTTP démarré sur le port {port}")
     httpd.serve_forever()
-
 
 if __name__ == '__main__':
     run_server()
